@@ -1,14 +1,13 @@
+// app/api/generate/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import Replicate from 'replicate'
 import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
 import { z } from 'zod'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
-const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN })
 
 const GenerateSchema = z.object({
   prompt: z.string().min(10).max(500),
@@ -42,7 +41,6 @@ const STYLE_MODIFIERS: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Autenticação
     const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,69 +50,71 @@ export async function POST(req: NextRequest) {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-    // 2. Rate limiting — 10 req/min por usuário
     const rlKey = `ratelimit:generate:${session.user.id}`
     const requests = await redis.incr(rlKey)
     if (requests === 1) await redis.expire(rlKey, 60)
     if (requests > 10) return NextResponse.json({ error: 'Muitas requisições. Aguarde.' }, { status: 429 })
 
-    // 3. Validação
     const body = await req.json()
     const parsed = GenerateSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Dados inválidos' }, { status: 400 })
     const { prompt, network, style, format } = parsed.data
 
-    // 4. Verificar chaves de API
-    if (!process.env.GEMINI_API_KEY || !process.env.REPLICATE_API_TOKEN) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json({ error: 'Chaves de API não configuradas.' }, { status: 500 })
     }
 
-    // 5. Verificar créditos
     const credit = await prisma.credit.findUnique({ where: { userId: session.user.id } })
     if (!credit || credit.balance < 1) {
       return NextResponse.json({ error: 'Créditos insuficientes', code: 'NO_CREDITS' }, { status: 402 })
     }
 
-    // 6. Buscar identidade de marca
     const brand = await prisma.brand.findUnique({ where: { userId: session.user.id } })
-
-    // 7. Montar prompts
     const dimensions = FORMAT_DIMENSIONS[format]
-    const imagePrompt = `High quality social media post graphic for ${network}, promoting: ${prompt}. Style: ${STYLE_MODIFIERS[style]}${brand?.niche ? `, for ${brand.niche} industry` : ''}${brand?.primaryColor ? `, color palette inspired by ${brand.primaryColor}` : ''}. 8k resolution, no text in image, masterpiece.`
 
-    const textPrompt = `Você é especialista em marketing digital e copywriting brasileiro.
-${brand ? `Marca: "${brand.name}", nicho: "${brand.niche ?? 'geral'}", tom: "${brand.tone}".` : ''}
-Gere legenda e hashtags para: "${prompt}"
+    // MUDANÇA: Agora o Gemini vai retornar um JSON com a legenda, as hashtags E a tradução visual do prompt para a imagem!
+    const textPrompt = `Você é especialista em marketing digital.
+Marca: ${brand?.name || 'Geral'} | Nicho: ${brand?.niche || 'Geral'}
+Pedido do usuário: "${prompt}"
 Rede: ${network} | Tom: ${NETWORK_TONE[network]}
-REGRAS: legenda autêntica, CTA obrigatório no final, 10-15 hashtags em minúsculo com #, não inclua hashtags na legenda.
-Responda APENAS em JSON válido sem markdown:
-{"caption": "...", "hashtags": ["#tag1", "#tag2"]}`
 
-    // 8. Geração paralela
-    const [imageOutput, textResult] = await Promise.all([
-      replicate.run('black-forest-labs/flux-schnell', {
-        input: { prompt: imagePrompt, width: dimensions.width, height: dimensions.height, num_inference_steps: 4, output_format: 'webp', output_quality: 80 }
-      }),
-      genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }).generateContent(textPrompt)
-    ])
+Responda APENAS em JSON válido sem markdown com 3 propriedades:
+1. "caption": A legenda do post com CTA.
+2. "hashtags": Array com 10 hashtags.
+3. "imagePromptEn": Descreva a imagem ideal para este post em INGLÊS PURO. Foco no visual, cenário, cores e estilo fotográfico. Exemplo: "A modern gym interior with red and white equipment, high quality photography, cinematic lighting, no text".
 
-    const imageUrl = Array.isArray(imageOutput) ? imageOutput[0] : null
-    if (!imageUrl) throw new Error('Falha ao gerar imagem.')
+JSON:`
 
-    let parsedText = { caption: 'Legenda não gerada.', hashtags: [] as string[] }
+    // 1. Pede para o Gemini processar tudo
+    const textResult = await genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' }).generateContent(textPrompt)
+    
+    let parsedText = { 
+      caption: 'Legenda não gerada.', 
+      hashtags: [] as string[],
+      imagePromptEn: 'Professional advertising photography, highly detailed, clean'
+    }
+
     try {
       const clean = textResult.response.text().replace(/```json|```/g, '').trim()
       parsedText = JSON.parse(clean)
-    } catch { /* mantém fallback */ }
+    } catch { console.error("Erro ao fazer parse do JSON do Gemini") }
 
-    // 9. Transação atômica: salvar criativo + debitar crédito
+    // 2. Agora mandamos o prompt em INGLÊS PURO gerado pelo Gemini para o Pollinations
+    const finalAiPrompt = `${parsedText.imagePromptEn}, ${STYLE_MODIFIERS[style]}`
+    const encodedPrompt = encodeURIComponent(finalAiPrompt)
+    const randomSeed = Math.floor(Math.random() * 1000000)
+    
+    // Tiramos o "model=flux" para usar o modelo padrão que é mais estável e não retorna tela preta
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${dimensions.width}&height=${dimensions.height}&seed=${randomSeed}&nologo=true`
+
+    // 3. Salva no banco de dados
     const [creative] = await prisma.$transaction([
       prisma.creative.create({
         data: {
           userId: session.user.id,
           prompt,
-          aiPrompt: imagePrompt,
-          imageUrl: imageUrl as string,
+          aiPrompt: finalAiPrompt,
+          imageUrl: imageUrl,
           caption: parsedText.caption,
           hashtags: parsedText.hashtags,
           network: network as any,
