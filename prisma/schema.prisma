@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String              @id @default(cuid())
+  email            String              @unique
+  name             String?
+  avatarUrl        String?
+  stripeCustomerId String?             @unique
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  credits          Credit?
+  subscription     Subscription?
+  creatives        Creative[]
+  brand            Brand?
+  transactions     CreditTransaction[]
+}
+
+model Credit {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Int      @default(0)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreditTransaction {
+  id              String          @id @default(cuid())
+  userId          String
+  amount          Int
+  type            TransactionType
+  description     String
+  creativeId      String?
+  stripePaymentId String?
+  createdAt       DateTime        @default(now())
+  user            User            @relation(fields: [userId], references: [id])
+}
+
+enum TransactionType {
+  PURCHASE
+  SUBSCRIPTION_RENEWAL
+  CONSUMPTION
+  BONUS
+  REFUND
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeSubscriptionId String             @unique
+  stripePriceId        String
+  plan                 SubscriptionPlan
+  status               SubscriptionStatus
+  creditsPerMonth      Int
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id])
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PRO
+  AGENCY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model Creative {
+  id          String   @id @default(cuid())
+  userId      String
+  prompt      String
+  aiPrompt    String
+  imageUrl    String
+  caption     String
+  hashtags    String[]
+  network     Network
+  style       String
+  format      Format   @default(SQUARE)
+  creditsUsed Int      @default(1)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+enum Network {
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+  LINKEDIN
+  TWITTER
+}
+
+enum Format {
+  SQUARE
+  PORTRAIT
+  STORY
+  LANDSCAPE
+}
+
+model Brand {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  name           String
+  primaryColor   String   @default("#FF3D6E")
+  secondaryColor String   @default("#FF8C42")
+  fontStyle      String   @default("modern")
+  logoUrl        String?
+  tone           String   @default("energético e motivador")
+  niche          String?
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+}
