@@ -1,171 +1,202 @@
-// app/page.tsx
 'use client'
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Sparkles, Zap, Image as ImageIcon, ArrowRight, TrendingUp } from 'lucide-react'
+import { Sparkles, Zap, Image as ImageIcon, ArrowRight, TrendingUp, Layers3, Wand2 } from 'lucide-react'
+
+const features = [
+  {
+    icon: ImageIcon,
+    title: 'Criativos com cara de campanha premium',
+    description: 'Imagens, copy e hashtags alinhadas com a identidade visual da marca em segundos.',
+  },
+  {
+    icon: Wand2,
+    title: 'Fluxo rápido e sem fricção',
+    description: 'Escolha a rede, o estilo e o formato. O resto sai pronto para postar.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Feito para vender mais',
+    description: 'Legendas com CTA, artes chamativas e consistência visual para melhorar resultado.',
+  },
+]
 
 export default function LandingPage() {
-  // Variáveis para animação em cascata (Stagger)
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
-  }
-
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden selection:bg-[#ff3d6e]/30">
-      
-      {/* Elementos de Fundo (Brilhos Neon) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#ff3d6e]/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-[#ff5c85]/10 blur-[100px] rounded-full pointer-events-none" />
+    <div className="page-shell min-h-screen overflow-hidden text-white">
+      <div className="grid-overlay pointer-events-none fixed inset-0 opacity-[0.06]" />
 
-      {/* Navbar Glassmorphism */}
-      <nav className="fixed w-full z-50 top-0 border-b border-white/5 bg-[#0a0a0f]/50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#ff3d6e] to-[#ff5c85] rounded-xl flex items-center justify-center shadow-lg shadow-[#ff3d6e]/20">
-              <Sparkles size={20} className="text-white" />
+      <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/8 bg-[#08080d]/55 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff3d6e] via-[#ff5d84] to-[#ff8c42] shadow-[0_18px_40px_rgba(255,61,110,0.35)]">
+              <Sparkles size={18} className="text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tight">Postzy</span>
+            <div>
+              <div className="text-2xl font-black tracking-tight">Postzy</div>
+              <div className="text-xs uppercase tracking-[0.28em] text-zinc-500">dm labtech</div>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="secondary-button hidden px-5 py-3 text-sm sm:inline-flex">
               Entrar
             </Link>
-            <Link href="/register" className="text-sm font-bold bg-white text-black px-5 py-2.5 rounded-full hover:scale-105 transition-transform shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-              Começar Grátis
+            <Link href="/register" className="primary-button px-5 py-3 text-sm">
+              Começar grátis <ArrowRight size={16} />
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main className="relative pt-40 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center z-10">
-        
+      <main className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center px-6 pb-24 pt-36 text-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#ff3d6e]/10 border border-[#ff3d6e]/20 text-[#ff3d6e] text-sm font-bold mb-8"
+          initial={{ opacity: 0, y: -14 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="badge-pill animate-float"
         >
-          <Zap size={16} /> A Revolução do Marketing Digital chegou
+          <Zap size={14} /> IA criativa com visual premium
         </motion.div>
 
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
+        <motion.h1
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-6 max-w-4xl"
+          transition={{ delay: 0.1 }}
+          className="mt-6 max-w-5xl text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-8xl"
         >
-          Crie posts que <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff3d6e] to-[#ff5c85]">convertem</span> em questão de segundos.
+          Gere posts que parecem feitos por uma <span className="gradient-text">agência cara</span>.
         </motion.h1>
 
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
+        <motion.p
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl leading-relaxed"
+          transition={{ delay: 0.18 }}
+          className="mt-7 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg"
         >
-          Inteligência Artificial desenhada para gerar artes impressionantes e textos persuasivos com a identidade visual da sua marca.
+          O Postzy transforma uma ideia simples em arte, legenda e hashtags prontas para publicar no Instagram, Facebook, TikTok, LinkedIn e mais.
         </motion.p>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="flex flex-col sm:flex-row items-center gap-4"
+          transition={{ delay: 0.26 }}
+          className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
         >
-          <Link href="/register" className="flex items-center gap-2 bg-gradient-to-r from-[#ff3d6e] to-[#ff5c85] text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-[0_0_30px_rgba(255,61,110,0.5)] hover:scale-105 transition-all">
-            Criar meu primeiro Post <ArrowRight size={20} />
+          <Link href="/register" className="primary-button px-7 py-4 text-base">
+            Criar meu primeiro post <ArrowRight size={18} />
           </Link>
-          <p className="text-sm text-gray-500 font-medium">Ganhe 5 créditos gratuitos ao se cadastrar.</p>
+          <Link href="/login" className="secondary-button px-7 py-4 text-base">
+            Ver painel
+          </Link>
         </motion.div>
 
-        {/* Dashboard Mockup (Preview Visual) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-20 w-full max-w-5xl h-[400px] md:h-[600px] bg-[#13131a]/80 backdrop-blur-xl border border-white/10 rounded-t-3xl shadow-2xl overflow-hidden relative flex flex-col"
+          transition={{ delay: 0.35, duration: 0.7 }}
+          className="glass-panel gradient-border mt-16 w-full max-w-6xl overflow-hidden rounded-[30px]"
         >
-          {/* Falso Header do Mockup */}
-          <div className="h-12 bg-black/40 border-b border-white/5 flex items-center px-6 gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500/80" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <div className="w-3 h-3 rounded-full bg-green-500/80" />
-          </div>
-          {/* Conteúdo Falso do Mockup */}
-          <div className="flex-1 p-8 flex gap-8">
-            <div className="w-1/3 space-y-4 hidden md:block">
-              <div className="h-10 bg-white/5 rounded-lg w-full animate-pulse" />
-              <div className="h-40 bg-white/5 rounded-lg w-full" />
-              <div className="h-10 bg-[#ff3d6e]/20 rounded-lg w-full" />
+          <div className="flex items-center justify-between border-b border-white/8 px-5 py-4 sm:px-6">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-rose-400/80" />
+              <span className="h-3 w-3 rounded-full bg-amber-400/80" />
+              <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
             </div>
-            <div className="flex-1 bg-black/50 rounded-2xl border border-white/5 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#ff3d6e]/10 to-transparent" />
-              <ImageIcon size={64} className="text-gray-800" />
+            <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400">
+              experiência glass premium
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-5 md:grid-cols-[280px,1fr] md:p-8">
+            <div className="space-y-4 rounded-[24px] border border-white/8 bg-black/30 p-4 text-left">
+              <div className="glass-soft rounded-2xl p-4">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#ff3d6e]/15 text-[#ff8aa8]">
+                    <Layers3 size={18} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">Painel criativo</div>
+                    <div className="text-xs text-zinc-500">rede, estilo e formato</div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-10 rounded-xl bg-white/5" />
+                  <div className="h-28 rounded-xl bg-white/5" />
+                  <div className="h-10 rounded-xl bg-gradient-to-r from-[#ff3d6e]/30 to-[#ff8c42]/20" />
+                </div>
+              </div>
+              <div className="glass-soft rounded-2xl p-4">
+                <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">social proof</div>
+                <div className="mt-3 text-sm text-zinc-300">Posts mais rápidos, identidade consistente e fluxo bonito de verdade.</div>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-[28px] border border-white/8 bg-black/35 p-5 sm:p-8">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,61,110,0.16),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(155,107,255,0.14),transparent_32%)]" />
+              <div className="relative grid h-full gap-5 md:grid-cols-2">
+                <div className="glass-soft flex min-h-[290px] flex-col rounded-[24px] p-5 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="badge-pill">geração</span>
+                    <span className="text-xs text-zinc-500">4:5 vertical</span>
+                  </div>
+                  <div className="mt-5 flex-1 rounded-[20px] border border-white/8 bg-gradient-to-br from-white/10 to-transparent p-4">
+                    <div className="h-full rounded-[18px] border border-dashed border-white/12 bg-black/25" />
+                  </div>
+                </div>
+                <div className="glass-soft flex min-h-[290px] flex-col rounded-[24px] p-5 text-left">
+                  <div className="text-sm font-semibold text-white">Legenda + hashtags</div>
+                  <div className="mt-5 space-y-3 text-sm text-zinc-400">
+                    <div className="h-4 rounded-full bg-white/8" />
+                    <div className="h-4 w-11/12 rounded-full bg-white/8" />
+                    <div className="h-4 w-10/12 rounded-full bg-white/8" />
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs">#marketing</span>
+                      <span className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs">#criativo</span>
+                      <span className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs">#vendas</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>
       </main>
 
-      {/* Features Section */}
-      <section className="relative z-10 bg-black/50 py-24 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">Poder absurdo. Uso simples.</h2>
-            <p className="text-gray-400">Tudo que você precisa para dominar as redes sociais da sua empresa.</p>
+      <section className="relative z-10 border-t border-white/8 py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <div className="badge-pill mx-auto">efeitos, brilho e resultado</div>
+            <h2 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">Tudo com a mesma estética premium.</h2>
+            <p className="mt-4 text-zinc-400">Glassmorphism, microanimações e feedback visual em todas as áreas da plataforma.</p>
           </div>
 
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {/* Feature 1 */}
-            <motion.div variants={itemVariants} className="bg-[#13131a] border border-white/5 p-8 rounded-3xl hover:border-[#ff3d6e]/50 transition-colors">
-              <div className="w-12 h-12 bg-[#ff3d6e]/10 rounded-xl flex items-center justify-center mb-6">
-                <ImageIcon className="text-[#ff3d6e]" size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Artes Cinematográficas</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Deixe o design com a IA. Geramos imagens de altíssima qualidade seguindo as paletas de cores da sua própria marca.</p>
-            </motion.div>
-
-            {/* Feature 2 */}
-            <motion.div variants={itemVariants} className="bg-[#13131a] border border-white/5 p-8 rounded-3xl hover:border-[#ff3d6e]/50 transition-colors">
-              <div className="w-12 h-12 bg-[#ff3d6e]/10 rounded-xl flex items-center justify-center mb-6">
-                <Zap className="text-[#ff3d6e]" size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Copywriting Automático</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Legendas persuasivas, gatilhos mentais e as hashtags perfeitas geradas em segundos para engajar seu público.</p>
-            </motion.div>
-
-            {/* Feature 3 */}
-            <motion.div variants={itemVariants} className="bg-[#13131a] border border-white/5 p-8 rounded-3xl hover:border-[#ff3d6e]/50 transition-colors">
-              <div className="w-12 h-12 bg-[#ff3d6e]/10 rounded-xl flex items-center justify-center mb-6">
-                <TrendingUp className="text-[#ff3d6e]" size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Pronto para Converter</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Foque nas suas vendas. O Postzy cuida de todo o processo criativo, formatando os posts para Instagram, Facebook e TikTok.</p>
-            </motion.div>
-          </motion.div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {features.map((feature, index) => {
+              const Icon = feature.icon
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                  className="glass-card rounded-[28px] p-7"
+                >
+                  <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-2xl bg-gradient-to-br from-[#ff3d6e]/20 to-[#9b6bff]/15 text-[#ff8aa8]">
+                    <Icon size={22} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{feature.title}</h3>
+                  <p className="mt-3 leading-7 text-zinc-400">{feature.description}</p>
+                </motion.div>
+              )
+            })}
+          </div>
         </div>
       </section>
-      
-      {/* Footer Simples */}
-      <footer className="border-t border-white/5 py-8 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} DM Labtech. Todos os direitos reservados.</p>
+
+      <footer className="border-t border-white/8 py-8 text-center text-sm text-zinc-500">
+        © {new Date().getFullYear()} DM Labtech. Postzy com visual premium e fluxo criativo.
       </footer>
     </div>
   )

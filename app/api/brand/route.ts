@@ -1,58 +1,99 @@
-// app/api/brand/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { ensureUserAndCredits } from '@/lib/ensure-user'
 
-// Validação rigorosa dos dados
 const BrandSchema = z.object({
-  name: z.string().min(2),
-  niche: z.string().min(2),
-  tone: z.string().min(2),
-  primaryColor: z.string().min(4),
+  name: z.string().min(2, 'O nome precisa ter pelo menos 2 caracteres.'),
+  niche: z.string().min(2, 'O nicho precisa ter pelo menos 2 caracteres.'),
+  tone: z.string().min(2, 'O tom precisa ter pelo menos 2 caracteres.'),
+  primaryColor: z
+    .string()
+    .regex(/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/, 'Cor HEX inválida.'),
 })
 
-export async function POST(req: NextRequest) {
-  try {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll() { return cookieStore.getAll() } } }
-    )
+async function getSession() {
+  const cookieStore = await cookies()
 
-    const { data: { session } } = await supabase.auth.getSession()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+      },
+    }
+  )
+
+  return supabase.auth.getSession()
+}
+
+export async function GET() {
+  try {
+    const {
+      data: { session },
+    } = await getSession()
+
     if (!session) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const body = await req.json()
-    const parsed = BrandSchema.parse(body)
+    await ensureUserAndCredits(session.user)
 
-    // UPSERT: Evita duplicação e garante que o usuário só tenha UMA marca configurada
+    const brand = await prisma.brand.findUnique({
+      where: { userId: session.user.id },
+    })
+
+    return NextResponse.json({ brand })
+  } catch (error: any) {
+    console.error('[BRAND_GET_ERROR]', error)
+    return NextResponse.json(
+      { error: 'Erro ao buscar marca.' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const {
+      data: { session },
+    } = await getSession()
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    }
+
+    await ensureUserAndCredits(session.user)
+
+    const body = await req.json()
+    const parsed = BrandSchema.safeParse(body)
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message || 'Dados inválidos.' },
+        { status: 400 }
+      )
+    }
+
     const brand = await prisma.brand.upsert({
       where: { userId: session.user.id },
-      update: {
-        name: parsed.name,
-        niche: parsed.niche,
-        tone: parsed.tone,
-        primaryColor: parsed.primaryColor,
-      },
+      update: parsed.data,
       create: {
         userId: session.user.id,
-        name: parsed.name,
-        niche: parsed.niche,
-        tone: parsed.tone,
-        primaryColor: parsed.primaryColor,
-      }
+        ...parsed.data,
+      },
     })
 
     return NextResponse.json({ success: true, brand })
   } catch (error: any) {
     console.error('[BRAND_POST_ERROR]', error)
     return NextResponse.json(
-      { error: error.message || 'Erro ao salvar marca' }, 
+      { error: error.message || 'Erro ao salvar marca' },
       { status: 500 }
     )
   }

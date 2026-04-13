@@ -1,77 +1,114 @@
-// app/(auth)/register/page.tsx
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { createBrowserClient } from '@supabase/ssr'
-import { Loader2, AlertCircle, Mail, Lock, User } from 'lucide-react'
+import {
+  Mail,
+  Lock,
+  User,
+  Loader2,
+  Sparkles,
+  ArrowLeft,
+  CheckCircle,
+} from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function RegisterPage() {
+  const router = useRouter()
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const router = useRouter()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const handleRegister = async (e: React.FormEvent) => {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
 
-    if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.')
-      setLoading(false)
+    if (!name || !email || !password) {
+      toast.error('Preencha todos os campos.')
       return
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
-        },
-        // O Supabase enviará o usuário para esta URL após confirmar o email
-        emailRedirectTo: `${location.origin}/api/auth/callback`,
-      },
-    })
+    if (password.length < 6) {
+      toast.error('A senha precisa ter pelo menos 6 caracteres.')
+      return
+    }
 
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      // Se não for exigida a confirmação de e-mail no painel do Supabase, já loga direto
+    setLoading(true)
+    const toastId = toast.loading('Criando sua conta...')
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+          },
+          emailRedirectTo: `${location.origin}/callback`,
+        },
+      })
+
+      if (error) {
+        toast.error(error.message || 'Erro ao criar conta.', {
+          id: toastId,
+        })
+        setLoading(false)
+        return
+      }
+
       if (data.session) {
+        toast.success('Conta criada com sucesso!', { id: toastId })
         router.push('/dashboard')
         router.refresh()
-      } else {
-        setSuccess(true)
-        setLoading(false)
+        return
       }
+
+      setSuccess(true)
+      toast.success('Verifique seu e-mail para ativar a conta.', {
+        id: toastId,
+      })
+      setLoading(false)
+    } catch {
+      toast.error('Erro de conexão.', { id: toastId })
+      setLoading(false)
     }
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4 font-['DM_Sans'] text-[#f0f0f5]">
-        <div className="w-full max-w-md bg-[#111118] border border-white/10 rounded-3xl p-8 shadow-2xl text-center">
-          <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Mail size={32} />
+      <div className="page-shell flex min-h-screen items-center justify-center px-5">
+        <div className="glass-panel gradient-border w-full max-w-md rounded-[32px] p-8 text-center">
+          <div className="mb-5 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500/20 text-green-400">
+              <CheckCircle size={30} />
+            </div>
           </div>
-          <h2 className="text-2xl font-bold font-['Syne'] mb-4">Verifique seu e-mail</h2>
-          <p className="text-[#7a7a99] text-sm mb-6">
-            Enviamos um link de confirmação para <strong className="text-white">{email}</strong>. Clique no link para ativar sua conta e receber seus 5 créditos gratuitos!
+
+          <h2 className="text-2xl font-bold text-white">
+            Verifique seu e-mail
+          </h2>
+
+          <p className="mt-3 text-sm text-zinc-400">
+            Enviamos um link de confirmação para:
           </p>
-          <Link href="/login" className="text-[#ff3d6e] hover:text-[#ff6b35] font-semibold text-sm transition-colors">
-            Voltar para o login
+
+          <p className="mt-2 font-semibold text-white">{email}</p>
+
+          <Link
+            href="/login"
+            className="primary-button mt-6 w-full justify-center py-3 text-sm"
+          >
+            Ir para login
           </Link>
         </div>
       </div>
@@ -79,96 +116,108 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4 font-['DM_Sans'] text-[#f0f0f5]">
-      {/* Elementos de fundo decorativos */}
-      <div className="absolute w-[500px] h-[500px] bg-[#ff3d6e]/10 rounded-full blur-[100px] top-[-10%] right-[-10%] pointer-events-none"></div>
-      <div className="absolute w-[400px] h-[400px] bg-[#a259ff]/10 rounded-full blur-[80px] bottom-[-10%] left-[-5%] pointer-events-none"></div>
+    <div className="page-shell relative min-h-screen overflow-hidden text-white">
+      <div className="absolute left-0 top-0 h-72 w-72 bg-[#ff3d6e]/12 blur-[120px]" />
+      <div className="absolute bottom-0 right-0 h-72 w-72 bg-[#9b6bff]/12 blur-[120px]" />
 
-      <div className="w-full max-w-md bg-[#111118] border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10">
-        <div className="text-center mb-8">
-          <Link href="/" className="font-['Syne'] font-extrabold text-3xl tracking-tight inline-block mb-2">
-            <span className="bg-gradient-to-br from-[#ff3d6e] to-[#ff8c42] bg-clip-text text-transparent">post</span>
-            <span className="text-white">zy</span>
-          </Link>
-          <p className="text-[#7a7a99] text-sm">Crie sua conta e ganhe 5 créditos grátis.</p>
+      <div className="relative z-10 flex min-h-screen">
+        <div className="hidden w-1/2 items-center justify-center p-10 lg:flex">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-full max-w-xl"
+          >
+            <Link
+              href="/"
+              className="secondary-button mb-8 inline-flex px-4 py-2.5 text-sm"
+            >
+              <ArrowLeft size={16} />
+              Voltar
+            </Link>
+
+            <div className="badge-pill mb-5">
+              <Sparkles size={14} />
+              comece agora
+            </div>
+
+            <h1 className="text-5xl font-black leading-tight">
+              Crie sua conta e comece a gerar criativos incríveis.
+            </h1>
+
+            <p className="mt-5 text-zinc-400">
+              Ganhe créditos gratuitos e tenha acesso ao painel completo com
+              identidade visual premium.
+            </p>
+          </motion.div>
         </div>
 
-        {error && (
-          <div className="mb-6 flex items-center gap-2 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-            <AlertCircle size={18} className="flex-shrink-0" />
-            <p>{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#7a7a99] ml-1">Seu Nome</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#7a7a99]">
-                <User size={18} />
-              </div>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Como quer ser chamado?"
-                required
-                disabled={loading}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-[#f0f0f5] placeholder-[#7a7a99] focus:outline-none focus:border-[#ff3d6e]/50 transition-colors disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#7a7a99] ml-1">E-mail</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#7a7a99]">
-                <Mail size={18} />
-              </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                required
-                disabled={loading}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-[#f0f0f5] placeholder-[#7a7a99] focus:outline-none focus:border-[#ff3d6e]/50 transition-colors disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#7a7a99] ml-1">Senha</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#7a7a99]">
-                <Lock size={18} />
-              </div>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo de 6 caracteres"
-                required
-                disabled={loading}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-[#f0f0f5] placeholder-[#7a7a99] focus:outline-none focus:border-[#ff3d6e]/50 transition-colors disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-6 relative group overflow-hidden bg-gradient-to-r from-[#ff3d6e] to-[#ff6b35] text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(255,61,110,0.3)] hover:shadow-[0_6px_30px_rgba(255,61,110,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+        <div className="flex w-full items-center justify-center px-5 py-10 lg:w-1/2">
+          <motion.div
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-panel gradient-border w-full max-w-md rounded-[32px] p-8"
           >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : 'Criar minha conta'}
-          </button>
-        </form>
+            <div className="mb-6 text-center">
+              <h2 className="text-3xl font-black">Criar conta</h2>
+              <p className="text-sm text-zinc-400">
+                Comece grátis agora mesmo
+              </p>
+            </div>
 
-        <div className="mt-8 text-center text-sm text-[#7a7a99]">
-          Já possui uma conta?{' '}
-          <Link href="/login" className="text-white font-semibold hover:text-[#ff3d6e] transition-colors">
-            Fazer login
-          </Link>
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div>
+                <label className="text-xs text-zinc-500">Nome</label>
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <input
+                    className="input-glass pl-11"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs text-zinc-500">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <input
+                    className="input-glass pl-11"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs text-zinc-500">Senha</label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                  <input
+                    type="password"
+                    className="input-glass pl-11"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button className="primary-button w-full py-3">
+                {loading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  'Criar conta'
+                )}
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-zinc-400">
+              Já tem conta?{' '}
+              <Link href="/login" className="text-white underline">
+                Entrar
+              </Link>
+            </p>
+          </motion.div>
         </div>
       </div>
     </div>
