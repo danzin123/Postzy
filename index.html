@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postzy — Criativos com IA para Redes Sociais</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --accent: #ff3d6e;
+    --accent2: #ff8c42;
+    --accent3: #a259ff;
+    --text: #f0f0f5;
+    --muted: #7a7a99;
+    --glow: rgba(255,61,110,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 20px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(20px);
+    background: rgba(10,10,15,0.8);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span {
+    background: var(--text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 36px;
+  }
+
+  nav ul a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  nav ul a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: white !important;
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    transition: all 0.2s !important;
+    box-shadow: 0 0 20px rgba(255,61,110,0.3);
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 30px rgba(255,61,110,0.5) !important;
+    color: white !important;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    position: relative;
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(255,61,110,0.12); top: 10%; left: -10%; }
+  .orb2 { width: 400px; height: 400px; background: rgba(162,89,255,0.1); top: 20%; right: -5%; }
+  .orb3 { width: 300px; height: 300px; background: rgba(255,140,66,0.08); bottom: 10%; left: 40%; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,61,110,0.1);
+    border: 1px solid rgba(255,61,110,0.25);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 28px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    max-width: 900px;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
+
+  .hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    max-width: 560px;
+    font-size: 1.15rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 24px;
+    font-weight: 300;
+    animation: fadeDown 0.7s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeDown 0.7s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #ff6b35);
+    color: white;
+    border: none;
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(255,61,110,0.35);
+    transition: all 0.25s;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(255,61,110,0.5);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 16px 36px;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .hero-social-proof {
+    margin-top: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: fadeDown 0.7s 0.4s ease both;
+  }
+
+  .avatars {
+    display: flex;
+  }
+
+  .avatars div {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+    margin-left: -8px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .avatars div:nth-child(2) { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+  .avatars div:nth-child(3) { background: linear-gradient(135deg, #11998e, #38ef7d); }
+  .avatars div:nth-child(4) { background: linear-gradient(135deg, #fc466b, #3f5efb); }
+  .avatars div:first-child { margin-left: 0; }
+
+  .proof-text { font-size: 0.85rem; color: var(--muted); }
+  .proof-text strong { color: var(--text); }
+
+  /* DEMO / MOCKUP */
+  .demo-section {
+    padding: 40px 60px 100px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .demo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px var(--border);
+    animation: fadeUp 0.8s 0.5s ease both;
+  }
+
+  .demo-topbar {
+    background: var(--surface2);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+
+  .demo-topbar-label {
+    margin-left: 12px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .demo-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .demo-left {
+    padding: 32px;
+    border-right: 1px solid var(--border);
+  }
+
+  .demo-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .demo-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    resize: none;
+    height: 100px;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .demo-textarea:focus { border-color: rgba(255,61,110,0.4); }
+
+  .demo-options {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .demo-tag {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .demo-tag:hover, .demo-tag.active {
+    background: rgba(255,61,110,0.1);
+    border-color: rgba(255,61,110,0.3);
+    color: var(--accent);
+  }
+
+  .demo-networks {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .network-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    color: var(--muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .network-btn.active {
+    background: rgba(255,61,110,0.08);
+    border-color: rgba(255,61,110,0.3);
+    color: var(--text);
+  }
+
+  .demo-generate {
+    margin-top: 24px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), #ff6b35);
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(255,61,110,0.3);
+    transition: all 0.2s;
+  }
+
+  .demo-generate:hover {
+    box-shadow: 0 6px 30px rgba(255,61,110,0.5);
+    transform: translateY(-1px);
+  }
+
+  .demo-credits {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .credit-icon { color: var(--accent2); }
+
+  /* DEMO RIGHT - OUTPUT */
+  .demo-right {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .generated-image {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .generated-image-inner {
+    width: 90%; height: 90%;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff3d6e22, #a259ff22);
+    border: 1px solid rgba(255,61,110,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+  }
+
+  /* Simulated creative */
+  .sim-creative {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(160deg, #1a0a3d, #3d0a1a);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sim-creative::before {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,61,110,0.2);
+    top: -60px; right: -60px;
+    filter: blur(40px);
+  }
+
+  .sim-creative::after {
+    content: '';
+    position: absolute;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    background: rgba(162,89,255,0.2);
+    bottom: -40px; left: -40px;
+    filter: blur(30px);
+  }
+
+  .sim-gym-icon {
+    font-size: 3rem;
+    margin-bottom: 8px;
+    z-index: 1;
+  }
+
+  .sim-promo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: white;
+    text-align: center;
+    line-height: 1.2;
+    z-index: 1;
+  }
+
+  .sim-price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    z-index: 1;
+    margin-top: 4px;
+  }
+
+  .sim-sub {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    z-index: 1;
+    margin-top: 4px;
+  }
+
+  .sim-tag-badge {
+    background: rgba(255,61,110,0.2);
+    border: 1px solid rgba(255,61,110,0.4);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    color: #ff8aaa;
+    z-index: 1;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .ai-badge-overlay {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .output-section {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .output-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .output-title::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .output-text {
+    font-size: 0.82rem;
+    color: rgba(240,240,245,0.8);
+    line-height: 1.6;
+  }
+
+  .hashtags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .hashtag {
+    color: var(--accent3);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+
+  /* FEATURES */
+  .section {
+    padding: 100px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0 auto 64px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,61,110,0.06), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feature-card:hover { border-color: rgba(255,61,110,0.2); transform: translateY(-4px); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: rgba(255,61,110,0.1);
+    border: 1px solid rgba(255,61,110,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+
+  .feature-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+
+  .feature-text {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* HOW IT WORKS */
+  .how-section {
+    padding: 100px 60px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .steps-container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    position: relative;
+  }
+
+  .steps-grid::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), var(--border), var(--border), transparent);
+    z-index: 0;
+  }
+
+  .step {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--accent);
+    position: relative;
+  }
+
+  .step-num::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,61,110,0.15), transparent 70%);
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .step-text {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .pricing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .pricing-card.featured {
+    background: linear-gradient(160deg, rgba(255,61,110,0.1), rgba(162,89,255,0.05));
+    border-color: rgba(255,61,110,0.3);
+    transform: scale(1.04);
+  }
+
+  .pricing-card:hover:not(.featured) {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-4px);
+  }
+
+  .popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    padding: 4px 18px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .plan-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .plan-price span {
+    font-size: 1.2rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+
+  .plan-credits {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+
+  .plan-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 24px;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: rgba(240,240,245,0.8);
+    line-height: 1.5;
+  }
+
+  .plan-features li::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .plan-features li.dim {
+    color: var(--muted);
+  }
+
+  .plan-features li.dim::before {
+    content: '—';
+    color: var(--muted);
+  }
+
+  .btn-plan {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .btn-plan-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-plan-outline:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .btn-plan-primary {
+    background: linear-gradient(135deg, var(--accent), #ff6b35);
+    color: white;
+    box-shadow: 0 4px 20px rgba(255,61,110,0.3);
+  }
+  .btn-plan-primary:hover {
+    box-shadow: 0 6px 30px rgba(255,61,110,0.5);
+    transform: translateY(-1px);
+  }
+
+  /* CREDITS INFO */
+  .credits-banner {
+    background: linear-gradient(135deg, rgba(255,61,110,0.08), rgba(162,89,255,0.06));
+    border: 1px solid rgba(255,61,110,0.15);
+    border-radius: 20px;
+    padding: 32px 40px;
+    max-width: 900px;
+    margin: 0 auto 80px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .credits-icon { font-size: 3rem; flex-shrink: 0; }
+
+  .credits-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .credits-info p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .credits-items {
+    display: flex;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .credit-item {
+    text-align: center;
+  }
+
+  .credit-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .credit-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* CTA SECTION */
+  .cta-section {
+    padding: 100px 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .cta-glow {
+    position: absolute;
+    width: 600px; height: 300px;
+    background: rgba(255,61,110,0.08);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .cta-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .cta-section p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  footer .logo { font-size: 1.3rem; }
+
+  .footer-links {
+    display: flex;
+    gap: 28px;
+  }
+
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--text); }
+
+  .footer-copy {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SCROLL ANIMATIONS */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    nav ul { display: none; }
+    .demo-body { grid-template-columns: 1fr; }
+    .demo-right { border-top: 1px solid var(--border); }
+    .features-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: repeat(2, 1fr); }
+    .steps-grid::before { display: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.featured { transform: none; }
+    .section { padding: 70px 24px; }
+    .how-section { padding: 70px 24px; }
+    .cta-section { padding: 70px 24px; }
+    footer { flex-direction: column; gap: 20px; text-align: center; }
+    .credits-banner { flex-direction: column; }
+    .credits-items { justify-content: center; }
+    .demo-section { padding: 20px 24px 70px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">post<span>zy</span></div>
+  <ul>
+    <li><a href="#">Funcionalidades</a></li>
+    <li><a href="#">Como funciona</a></li>
+    <li><a href="#">Preços</a></li>
+    <li><a href="#" class="nav-cta">Começar grátis</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+
+  <div class="badge">✨ Gerado com Inteligência Artificial</div>
+
+  <h1>
+    Criativos incríveis para<br>
+    <span class="highlight">redes sociais</span> em segundos
+  </h1>
+
+  <p>
+    Descreva sua promoção, produto ou serviço — e a Postzy cria a imagem, a legenda e as melhores hashtags automaticamente.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#" class="btn-primary">🚀 Criar meu primeiro criativo</a>
+    <a href="#" class="btn-secondary">
+      <span>▶</span> Ver como funciona
+    </a>
+  </div>
+
+  <div class="hero-social-proof">
+    <div class="avatars">
+      <div>MR</div>
+      <div>JS</div>
+      <div>AL</div>
+      <div>+</div>
+    </div>
+    <span class="proof-text">Mais de <strong>2.400 empresas</strong> já usam a Postzy</span>
+  </div>
+</section>
+
+<!-- DEMO -->
+<div class="demo-section">
+  <div class="demo-card reveal">
+    <div class="demo-topbar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="demo-topbar-label">postzy.com/criar</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-left">
+        <div class="demo-label">Descreva seu criativo</div>
+        <textarea class="demo-textarea" readonly>Quero um criativo para atrair alunos para minha academia com promoção de R$ 99,90 por mês. Transmita energia e motivação!</textarea>
+
+        <div class="demo-label" style="margin-top: 20px;">Estilo visual</div>
+        <div class="demo-options">
+          <span class="demo-tag active">Moderno</span>
+          <span class="demo-tag">Minimalista</span>
+          <span class="demo-tag">Bold</span>
+          <span class="demo-tag">Colorido</span>
+          <span class="demo-tag">Elegante</span>
+        </div>
+
+        <div class="demo-label" style="margin-top: 20px;">Rede social</div>
+        <div class="demo-networks">
+          <button class="network-btn active">📸 Instagram</button>
+          <button class="network-btn">📘 Facebook</button>
+          <button class="network-btn">🎵 TikTok</button>
+        </div>
+
+        <button class="demo-generate">
+          ✨ Gerar criativo
+        </button>
+        <div class="demo-credits">
+          <span class="credit-icon">⚡</span>
+          1 crédito será utilizado
+        </div>
+      </div>
+
+      <div class="demo-right">
+        <div class="demo-label">Criativo gerado</div>
+        <div class="generated-image">
+          <div class="sim-creative">
+            <div class="ai-badge-overlay">🤖 IA</div>
+            <div class="sim-gym-icon">💪</div>
+            <div class="sim-promo">TRANSFORME SEU<br>CORPO AGORA</div>
+            <div class="sim-price">R$ 99,90<span style="font-size:1rem;color:rgba(255,255,255,0.5)">/mês</span></div>
+            <div class="sim-sub">Matricule-se hoje e comece sua jornada</div>
+            <div class="sim-tag-badge">🔥 OFERTA LIMITADA</div>
+          </div>
+        </div>
+
+        <div class="output-section">
+          <div class="output-title">Legenda gerada</div>
+          <div class="output-text">Sua transformação começa com um passo. 💪 Por apenas R$ 99,90/mês, você tem acesso a equipamentos de ponta, personal trainer e muito mais. Não espere o dia perfeito — ele é hoje! 🔥</div>
+        </div>
+
+        <div class="output-section">
+          <div class="output-title">Hashtags sugeridas</div>
+          <div class="hashtags">
+            <span class="hashtag">#academia</span>
+            <span class="hashtag">#fitness</span>
+            <span class="hashtag">#treino</span>
+            <span class="hashtag">#transformacao</span>
+            <span class="hashtag">#musculacao</span>
+            <span class="hashtag">#saude</span>
+            <span class="hashtag">#promocao</span>
+            <span class="hashtag">#gym</span>
+            <span class="hashtag">#workout</span>
+            <span class="hashtag">#bodybuilding</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section">
+  <p class="section-label">Funcionalidades</p>
+  <h2 class="section-title reveal">Tudo que você precisa<br>para dominar as redes</h2>
+  <p class="section-sub reveal">Crie conteúdo profissional sem precisar de designer ou copywriter. Em segundos.</p>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🎨</div>
+      <div class="feature-title">Imagens geradas por IA</div>
+      <div class="feature-text">Criativos únicos e personalizados para sua marca, gerados em segundos com base na sua descrição.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">✍️</div>
+      <div class="feature-title">Legenda automática</div>
+      <div class="feature-text">Copies persuasivas e engajadoras criadas pela IA, adaptadas para o tom da sua marca e objetivo do post.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">#</div>
+      <div class="feature-title">Hashtags inteligentes</div>
+      <div class="feature-text">As melhores hashtags para maximizar o alcance do seu post, selecionadas pela IA com base no seu nicho.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">📱</div>
+      <div class="feature-title">Multi-plataforma</div>
+      <div class="feature-text">Formatos otimizados para Instagram, Facebook, TikTok, LinkedIn e muito mais. Um clique, todas as redes.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Sistema de créditos</div>
+      <div class="feature-text">Compre créditos avulsos ou assine um plano mensal. Use quando quiser, sem mensalidades obrigatórias.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">🏷️</div>
+      <div class="feature-title">Identidade de marca</div>
+      <div class="feature-text">Salve as cores, fontes e estilo da sua marca. Todos os criativos gerados já saem com a sua identidade visual.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div class="how-section">
+  <div class="steps-container">
+    <p class="section-label">Como funciona</p>
+    <h2 class="section-title reveal" style="margin-bottom: 16px;">De 0 ao criativo pronto<br>em menos de 30 segundos</h2>
+    <p class="section-sub reveal">Sem curva de aprendizado. Sem photoshop. Sem complicação.</p>
+
+    <div class="steps-grid">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-title">Descreva seu objetivo</div>
+        <div class="step-text">Escreva em linguagem natural o que você quer comunicar — promoção, lançamento, post informativo.</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-title">Escolha o formato</div>
+        <div class="step-text">Selecione a rede social e o estilo visual. A IA adapta o criativo para cada plataforma automaticamente.</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-title">Gere com 1 clique</div>
+        <div class="step-text">A IA cria a imagem, a legenda e as hashtags em segundos. Simples assim.</div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <div class="step-title">Poste direto</div>
+        <div class="step-text">Baixe o pacote completo ou publique diretamente nas suas redes sociais com integração nativa.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<section class="section" style="max-width: 1200px; margin: 0 auto; padding-top: 100px;">
+  <p class="section-label">Planos e preços</p>
+  <h2 class="section-title reveal">Escolha como preferir</h2>
+  <p class="section-sub reveal">Pague por créditos ou assine um plano e economize mais. Sem fidelidade.</p>
+
+  <div class="credits-banner reveal">
+    <div class="credits-icon">⚡</div>
+    <div class="credits-info">
+      <h3>O que são créditos Postzy?</h3>
+      <p>Cada criativo gerado consome 1 crédito — isso inclui a imagem, a legenda e as hashtags. Créditos nunca expiram e podem ser acumulados com seu plano mensal.</p>
+    </div>
+    <div class="credits-items">
+      <div class="credit-item">
+        <div class="credit-val">1</div>
+        <div class="credit-label">crédito = 1 criativo</div>
+      </div>
+      <div class="credit-item">
+        <div class="credit-val">∞</div>
+        <div class="credit-label">créditos não expiram</div>
+      </div>
+      <div class="credit-item">
+        <div class="credit-val">3</div>
+        <div class="credit-label">formatos por criativo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">R$49<span>/mês</span></div>
+      <div class="plan-credits">🔥 30 créditos mensais</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>30 criativos por mês</li>
+        <li>Instagram, Facebook e TikTok</li>
+        <li>Legenda + hashtags incluídas</li>
+        <li>Exportação HD</li>
+        <li class="dim">Identidade de marca</li>
+        <li class="dim">Integração direta nas redes</li>
+        <li class="dim">Suporte prioritário</li>
+      </ul>
+      <button class="btn-plan btn-plan-outline">Começar agora</button>
+    </div>
+
+    <div class="pricing-card featured reveal">
+      <div class="popular-badge">⭐ Mais popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">R$99<span>/mês</span></div>
+      <div class="plan-credits">⚡ 100 créditos mensais</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>100 criativos por mês</li>
+        <li>Todas as redes sociais</li>
+        <li>Legenda + hashtags incluídas</li>
+        <li>Exportação HD + pacote completo</li>
+        <li>Identidade de marca salva</li>
+        <li>Integração direta nas redes</li>
+        <li class="dim">Suporte prioritário</li>
+      </ul>
+      <button class="btn-plan btn-plan-primary">Assinar Pro</button>
+    </div>
+
+    <div class="pricing-card reveal">
+      <div class="plan-name">Agência</div>
+      <div class="plan-price">R$249<span>/mês</span></div>
+      <div class="plan-credits">🚀 300 créditos mensais</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>300 criativos por mês</li>
+        <li>Todas as redes sociais</li>
+        <li>Legenda + hashtags incluídas</li>
+        <li>Exportação HD + pacote completo</li>
+        <li>Múltiplas marcas/clientes</li>
+        <li>Integração direta nas redes</li>
+        <li>Suporte prioritário 24h</li>
+      </ul>
+      <button class="btn-plan btn-plan-outline">Assinar Agência</button>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 32px; color: var(--muted); font-size: 0.85rem;" class="reveal">
+    Prefere pagar por uso? <a href="#" style="color: var(--accent); text-decoration: none; font-weight: 500;">Compre pacotes de créditos avulsos →</a>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <h2 class="reveal">Pronto para <span style="background: linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">turbinar</span><br>suas redes sociais?</h2>
+  <p class="reveal">Comece grátis com 5 créditos. Sem cartão de crédito.</p>
+  <a href="#" class="btn-primary reveal" style="font-size: 1.1rem; padding: 18px 48px;">✨ Criar meu primeiro criativo grátis</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">post<span>zy</span></div>
+  <div class="footer-links">
+    <a href="#">Privacidade</a>
+    <a href="#">Termos</a>
+    <a href="#">Contato</a>
+    <a href="#">Blog</a>
+  </div>
+  <div class="footer-copy">© 2025 Postzy. Todos os direitos reservados.</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, i * 60);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Demo tag interaction
+  document.querySelectorAll('.demo-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      tag.closest('.demo-options').querySelectorAll('.demo-tag').forEach(t => t.classList.remove('active'));
+      tag.classList.add('active');
+    });
+  });
+
+  // Demo network buttons
+  document.querySelectorAll('.network-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.demo-networks').querySelectorAll('.network-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
